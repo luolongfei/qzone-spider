@@ -79,7 +79,7 @@ class QzoneSpider(object):
     # 匹配汉字和英文
     real_val_regex = re.compile(r'^[\u4e00-\u9fa5]+|[A-Za-z]{3,}$')
 
-    def __init__(self, executable_path='chromedriver_81.0.4044.69.exe'):
+    def __init__(self):
         # 加载环境变量
         load_dotenv(verbose=True, override=True, encoding='utf-8')
 
@@ -98,7 +98,7 @@ class QzoneSpider(object):
         self.options.add_argument('--headless')
         self.options.add_argument('--disable-gpu')  # 谷歌官方文档说加上此参数可减少bug
 
-        self.driver = webdriver.Chrome(executable_path=executable_path, options=self.options)
+        self.driver = webdriver.Chrome(executable_path=os.getenv('EXECUTABLE_PATH'), options=self.options)
         self.driver.implicitly_wait(QzoneSpider.timeout)
 
         # 防止通过 window.navigator.webdriver === true 检测模拟浏览器
