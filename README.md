@@ -12,7 +12,7 @@ $ vim .env
 # 抓取
 $ python qzone_spider.py
 ```
-注意：`chromedriver` 路径需要根据你本地浏览器的实际情况填写，这个玩意儿必须和你浏览器版本一一对应，否则启动不了。你可以去[https://chromedriver.chromium.org/downloads](https://chromedriver.chromium.org/downloads) 下载对应的 `chromedriver` 版本，并在 `.env` 文件中指明 `chromedriver 执行文件`的路径。
+注意：`chromedriver` 路径需要根据你本地浏览器的实际情况填写，这个玩意儿必须和你浏览器版本相对应，否则启动不了。你可以去 [https://chromedriver.chromium.org/downloads](https://chromedriver.chromium.org/downloads) 下载对应的 `chromedriver` 版本，并在 `.env` 文件中指明 `chromedriver 执行文件`的路径。
 
 ### 参考
 - [https://github.com/ybsdegit/captcha_qq](https://github.com/ybsdegit/captcha_qq)（破解腾讯滑动验证码）
