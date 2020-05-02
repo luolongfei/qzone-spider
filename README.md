@@ -3,6 +3,13 @@ QQ 空间爬虫，基于 selenium 模拟登录空间，拿到 cookies，然后�
 
 ### 使用
 ```shell
+# 获取源码
+$ git clone https://github.com/luolongfei/qzone_spider.git qzone_spider/
+$ cd qzone_spider/
+
+# 安装依赖包
+$ pip install -r requirements.txt
+
 # 复制配置
 $ cp .env.example .env
 
