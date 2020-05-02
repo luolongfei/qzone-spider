@@ -2,23 +2,32 @@
 QQ 空间爬虫，基于 selenium 模拟登录空间，拿到 cookies，然后使用 requests 抓取好友留言板的所有留言与回复，并生成词图。只抓了留言，本来还想抓说说，不过因为我已经好多年不玩 QQ 空间，感觉它对我已经没什么意义了，遂作罢。
 
 ### 使用
+
+#### 获取源码
 ```shell
-# 获取源码
 $ git clone https://github.com/luolongfei/qzone_spider.git qzone_spider/
 $ cd qzone_spider/
+```
 
-# 安装依赖包
+#### 安装依赖包
+```shell
 $ pip install -r requirements.txt
+```
 
+#### 配置
+```shell
 # 复制配置
 $ cp .env.example .env
 
 # 根据 .env 文件中的注释，将其中对应的项目改为你自己的
 $ vim .env
+```
 
-# 抓取
+#### 抓取
+```shell
 $ python qzone_spider.py
 ```
+
 注意：`chromedriver` 路径需要根据你本地浏览器的实际情况填写，这个玩意儿必须和你浏览器版本相对应，否则启动不了。你可以去 [https://chromedriver.chromium.org/downloads](https://chromedriver.chromium.org/downloads) 下载对应的 `chromedriver` 版本，并在 `.env` 文件中指明 `chromedriver 执行文件`的路径。
 
 ### 参考
