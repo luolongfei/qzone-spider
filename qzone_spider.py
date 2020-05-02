@@ -502,6 +502,9 @@ class QzoneSpider(object):
             self.gen_word_cloud_image(comment_cut_word, word_cloud_comment_img)
             QzoneSpider.row_print('已生成词云图：{} 共 {} 条留言'.format(word_cloud_comment_img, self.comment_total))
 
+        # 关闭浏览器，释放内存
+        self.driver.quit()
+
 
 if __name__ == '__main__':
     spider = QzoneSpider()
