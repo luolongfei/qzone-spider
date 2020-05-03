@@ -88,7 +88,7 @@ class QzoneSpider(object):
         self.options.add_argument(f'user-agent={QzoneSpider.user_agent}')
         self.options.add_experimental_option('excludeSwitches', ['enable-automation'])
         self.options.add_experimental_option('useAutomationExtension', False)
-        self.options.add_argument('--disable-extensions')
+        self.options.add_argument('--disable-extensions')  # 禁用扩展
         self.options.add_argument('--profile-directory=Default')
         self.options.add_argument('--incognito')  # 隐身模式
         self.options.add_argument('--disable-plugins-discovery')
@@ -96,7 +96,11 @@ class QzoneSpider(object):
         # self.options.add_argument('--window-size=1366,768')
 
         self.options.add_argument('--headless')
-        self.options.add_argument('--disable-gpu')  # 谷歌官方文档说加上此参数可减少bug
+        self.options.add_argument('--disable-gpu')  # 谷歌官方文档说加上此参数可减少 bug，仅适用于 Windows 系统
+
+        # 解决 unknown error: DevToolsActivePort file doesn't exist
+        self.options.add_argument('--no-sandbox')  # 绕过操作系统沙箱环境
+        self.options.add_argument('--disable-dev-shm-usage')  # 解决资源限制，仅适用于 Linux 系统
 
         self.driver = webdriver.Chrome(executable_path=os.getenv('EXECUTABLE_PATH'), options=self.options)
         self.driver.implicitly_wait(QzoneSpider.timeout)
