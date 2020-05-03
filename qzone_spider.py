@@ -385,7 +385,7 @@ class QzoneSpider(object):
             self.__login(force=True)
 
             return self.__get_comment_list(start, num)
-        elif code is not 0:
+        elif code != 0:
             raise Exception(msg_data['message'])
 
         if self.comment_total is None:
@@ -400,7 +400,7 @@ class QzoneSpider(object):
         content_list = []
         for comment in comment_list:
             # 无法获取私密留言内容
-            if comment['secret'] is 1:
+            if comment['secret'] == 1:
                 continue
 
             content_list.append(comment['htmlContent'])
