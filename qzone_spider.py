@@ -470,6 +470,8 @@ class QzoneSpider(object):
         """
         dirname = os.path.dirname(filename)
         os.makedirs(dirname, exist_ok=True)
+
+        QzoneSpider.row_print('正在生成词云图...')
         mask = np.array(Image.open(mask_file)) if mask_file else None
         scale = 10 if mask else 1  # 当有遮罩时保证图片不失真
         wc = WordCloud(width=1200, height=600, background_color='white', max_words=200, font_path='msyh.ttc',
