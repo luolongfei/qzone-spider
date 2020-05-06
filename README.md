@@ -49,5 +49,5 @@ $ python qzone_spider.py
 
 ### 开源协议
 
----
+------
 [MIT](https://opensource.org/licenses/mit-license.php)
