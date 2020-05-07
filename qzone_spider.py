@@ -60,6 +60,7 @@ def catch_exception(origin_func):
             print('出错：{} 位置：{}'.format(str(e), traceback.format_exc()))
         finally:
             self.driver.quit()
+            print('已关闭浏览器，释放资源占用')
 
     return wrapper
 
@@ -507,9 +508,6 @@ class QzoneSpider(object):
             word_cloud_comment_img = 'result/word_cloud_{}_{}.png'.format(self.friend_qq, self.comment_total)
             self.gen_word_cloud_image(comment_cut_word, word_cloud_comment_img)
             QzoneSpider.row_print('已生成词云图：{} 共 {} 条留言'.format(word_cloud_comment_img, self.comment_total))
-
-        # 关闭浏览器，释放内存
-        self.driver.quit()
 
 
 if __name__ == '__main__':
