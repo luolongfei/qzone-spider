@@ -53,9 +53,8 @@ def catch_exception(origin_func):
             print(f'请求超时：{self.driver.current_url}')
         except UserWarning as uw:
             print('警告：{}'.format(str(uw)))
-        except WebDriverException:
-            print('未知错误，可能是 chromedriver 与本地谷歌无头浏览器版本不匹配，可检查并前往 https://chromedriver.chromium.org/downloads '
-                  '下载匹配的版本，当然也可能不是这个原因:)')
+        except WebDriverException as wde:
+            print(f'未知错误：{str(wde)}')
         except Exception as e:
             print('出错：{} 位置：{}'.format(str(e), traceback.format_exc()))
         finally:
