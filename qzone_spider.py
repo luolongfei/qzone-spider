@@ -508,7 +508,6 @@ class QzoneSpider(object):
         在同一行输出字符
         :param string: 原始字符串
         :param sleep_time: 休眠秒数
-        :param new_line: 是否换行
         :return:
         """
         print('\r[{}] {}'.format(QzoneSpider.now(), string), flush=True, end='')
