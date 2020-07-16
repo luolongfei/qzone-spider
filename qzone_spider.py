@@ -14,7 +14,7 @@ import time
 import random
 import json
 import re
-import sys
+import datetime
 import traceback
 from io import BytesIO
 from urllib.request import urlretrieve
@@ -46,27 +46,27 @@ def catch_exception(origin_func):
         try:
             return origin_func(self, *args, **kwargs)
         except AssertionError as ae:
-            print('参数错误：{}'.format(str(ae)))
+            QzoneSpider.format_print('参数错误：{}'.format(str(ae)))
         except NoSuchElementException as nse:
-            print('匹配元素超时，超过{}秒依然没有发现元素：{}'.format(QzoneSpider.timeout, str(nse)))
+            QzoneSpider.format_print('匹配元素超时，超过{}秒依然没有发现元素：{}'.format(QzoneSpider.timeout, str(nse)))
         except TimeoutException:
-            print(f'请求超时：{self.driver.current_url}')
+            QzoneSpider.format_print(f'请求超时：{self.driver.current_url}')
         except UserWarning as uw:
-            print('警告：{}'.format(str(uw)))
+            QzoneSpider.format_print('警告：{}'.format(str(uw)))
         except WebDriverException as wde:
-            print(f'未知错误：{str(wde)}')
+            QzoneSpider.format_print(f'未知错误：{str(wde)}')
         except Exception as e:
-            print('出错：{} 位置：{}'.format(str(e), traceback.format_exc()))
+            QzoneSpider.format_print('出错：{} 位置：{}'.format(str(e), traceback.format_exc()))
         finally:
             self.driver.quit()
-            print('已关闭浏览器，释放资源占用')
+            QzoneSpider.format_print('已关闭浏览器，释放资源占用')
 
     return wrapper
 
 
 class QzoneSpider(object):
     # 超时秒数，包括隐式等待和显式等待
-    timeout = 33
+    timeout = 10
 
     user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.129 Safari/537.36'
 
@@ -151,7 +151,7 @@ class QzoneSpider(object):
         :return:
         """
         if not force and os.path.exists(self.cookies_file):
-            print('发现已存在 cookies 文件，免登录')
+            QzoneSpider.format_print('发现已存在 cookies 文件，免登录', 2)
             with open(self.cookies_file, 'rb') as f:
                 self.cookies = pickle.load(f)
                 self._g_tk = self.g_tk(self.cookies)
@@ -176,11 +176,8 @@ class QzoneSpider(object):
 
         self.__fuck_captcha()
 
-        cookies = {}
-        for cookie in self.driver.get_cookies():
-            cookies[cookie['name']] = cookie['value']
-
         # cookies 持久化
+        cookies = {cookie['name']: cookie['value'] for cookie in self.driver.get_cookies()}
         with open(self.cookies_file, 'wb') as f:
             pickle.dump(cookies, f)
 
@@ -276,17 +273,39 @@ class QzoneSpider(object):
 
         return x
 
+    def __is_visibility(self, locator: tuple) -> bool:
+        """
+        判断元素是否存在且可见
+        :param locator: 定位器
+        :return:
+        """
+        try:
+            return bool(self.wait.until(EC.visibility_of_element_located(locator)))
+        except NoSuchElementException as e:
+            return False
+        except Exception as e:
+            raise
+
     def __fuck_captcha(self, max_retry_num=6):
         """
         模拟真人滑动验证
         :param max_retry_num: 最多尝试 max_retry_num 次
         :return:
         """
+        # 判断是否出现滑动验证码
+        QzoneSpider.row_print('正在检查是否存在滑动验证码...', 2)
+        if not self.__is_visibility((By.ID, 'newVcodeArea')):
+            QzoneSpider.row_print('无滑动验证码，直接登录')
+
+            return
+
+        QzoneSpider.row_print('发现滑动验证码，正在验证...')
+
         # 切换到验证码 iframe
         self.wait.until(EC.frame_to_be_available_and_switch_to_it((By.ID, 'tcaptcha_iframe')))
         time.sleep(0.2)  # 切换 iframe 会有少许延迟，稍作休眠
 
-        for i in range(max_retry_num):
+        for i in range(1, max_retry_num + 1):
             # 背景图
             bg_block = self.wait.until(EC.visibility_of_element_located((By.ID, 'slideBg')))
             bg_img_width = bg_block.size['width']
@@ -333,12 +352,12 @@ class QzoneSpider(object):
 
             # 判断是否通过验证
             if 'user' in self.driver.current_url:
-                print('已通过滑动验证')
+                QzoneSpider.row_print('已通过滑动验证', 1)
                 self.driver.switch_to.default_content()
 
                 return True
             else:
-                print(f'滑块验证不通过，正在进行第{i + 1}次重试...')
+                QzoneSpider.row_print(f'滑块验证不通过，正在进行第 {i} 次重试...')
                 self.wait.until(EC.element_to_be_clickable((By.ID, 'e_reload'))).click()
                 time.sleep(0.2)
 
@@ -385,7 +404,7 @@ class QzoneSpider(object):
         code = msg_data['code']
 
         if code == -4001:
-            print('由于之前缓存的 cookies 文件已失效，将尝试自动重新登录...')
+            QzoneSpider.format_print('由于之前缓存的 cookies 文件已失效，将尝试自动重新登录...')
             self.__login(force=True)
 
             return self.__get_comment_list(start, num)
@@ -484,16 +503,32 @@ class QzoneSpider(object):
         wc.to_file(filename)
 
     @staticmethod
-    def row_print(string):
+    def row_print(string, sleep_time=0.02):
         """
         在同一行输出字符
-        :param string:
+        :param string: 原始字符串
+        :param sleep_time: 休眠秒数
+        :param new_line: 是否换行
         :return:
         """
-        print(string, end='\r')  # 回车将回到文本开始处
-        sys.stdout.flush()
+        print('\r[{}] {}'.format(QzoneSpider.now(), string), flush=True, end='')
 
-        time.sleep(0.02)
+        time.sleep(sleep_time)
+
+    @staticmethod
+    def format_print(string, sleep_time=0):
+        print('\n[{}] {}'.format(QzoneSpider.now(), string), flush=True, end='')
+
+        sleep_time and time.sleep(sleep_time)
+
+    @staticmethod
+    def now():
+        """
+        当前时间
+        精确到毫秒
+        :return:
+        """
+        return datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
 
     @catch_exception
     def run(self):
@@ -506,7 +541,7 @@ class QzoneSpider(object):
         if comment_cut_word:
             word_cloud_comment_img = 'result/word_cloud_{}_{}.png'.format(self.friend_qq, self.comment_total)
             self.gen_word_cloud_image(comment_cut_word, word_cloud_comment_img)
-            QzoneSpider.row_print('已生成词云图：{} 共 {} 条留言'.format(word_cloud_comment_img, self.comment_total))
+            QzoneSpider.format_print('已生成词云图：{} 共 {} 条留言'.format(word_cloud_comment_img, self.comment_total))
 
 
 if __name__ == '__main__':
