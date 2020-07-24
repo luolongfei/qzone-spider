@@ -166,11 +166,13 @@ class QzoneSpider(object):
 
         u = self.driver.find_element_by_id('u')
         u.clear()
-        u.send_keys(self.username)
+        self.send_keys_delay_random(u, self.username)
+
+        time.sleep(2)
 
         p = self.driver.find_element_by_id('p')
         p.clear()
-        p.send_keys(self.password)
+        self.send_keys_delay_random(p, self.password)
 
         self.driver.find_element_by_id('login_button').click()
 
@@ -281,10 +283,8 @@ class QzoneSpider(object):
         """
         try:
             return bool(self.wait.until(EC.visibility_of_element_located(locator)))
-        except NoSuchElementException as e:
-            return False
         except Exception as e:
-            raise
+            return False
 
     def __fuck_captcha(self, max_retry_num=6):
         """
@@ -293,7 +293,7 @@ class QzoneSpider(object):
         :return:
         """
         # 判断是否出现滑动验证码
-        QzoneSpider.row_print('正在检查是否存在滑动验证码...', 2)
+        QzoneSpider.row_print('正在检查是否存在滑动验证码...')
         if not self.__is_visibility((By.ID, 'newVcodeArea')):
             QzoneSpider.row_print('无滑动验证码，直接登录')
 
@@ -541,6 +541,19 @@ class QzoneSpider(object):
             word_cloud_comment_img = 'result/word_cloud_{}_{}.png'.format(self.friend_qq, self.comment_total)
             self.gen_word_cloud_image(comment_cut_word, word_cloud_comment_img)
             QzoneSpider.format_print('已生成词云图：{} 共 {} 条留言'.format(word_cloud_comment_img, self.comment_total))
+
+    def send_keys_delay_random(self, element, keys, min_delay=0.13, max_delay=0.52):
+        """
+        随机延迟输入
+        :param element:
+        :param keys:
+        :param min_delay:
+        :param max_delay:
+        :return:
+        """
+        for key in keys:
+            element.send_keys(key)
+            time.sleep(random.uniform(min_delay, max_delay))
 
 
 if __name__ == '__main__':
