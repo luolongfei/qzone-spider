@@ -95,7 +95,7 @@ class QzoneSpider(object):
         self.options.add_argument('--start-maximized')
         # self.options.add_argument('--window-size=1366,768')
 
-        self.options.add_argument('--headless')
+        self.options.add_argument('--headless')  # 启用无头模式
         self.options.add_argument('--disable-gpu')  # 谷歌官方文档说加上此参数可减少 bug，仅适用于 Windows 系统
 
         # 解决 unknown error: DevToolsActivePort file doesn't exist
@@ -116,6 +116,14 @@ class QzoneSpider(object):
                 })
             """
         })
+
+        # 隐藏无头浏览器特征，增加检测难度
+        with open('resources/stealth.min.js') as f:
+            stealth_js = f.read()
+
+            self.driver.execute_cdp_cmd('Page.addScriptToEvaluateOnNewDocument', {
+                'source': stealth_js
+            })
 
         # 统配显式等待
         self.wait = WebDriverWait(self.driver, timeout=QzoneSpider.timeout, poll_frequency=0.5)
